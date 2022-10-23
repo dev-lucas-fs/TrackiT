@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { TrackItCircularProgressbar } from "../../../components/CircularProgressbar";
 
@@ -22,14 +22,19 @@ const ContainerLink = styled.div`
   > * {
     text-decoration: none;
     color: #52b6ff;
+    font-size: 18px;
   }
 `;
 
 export default function Footer() {
+  const navigate = useNavigate();
+
   return (
     <Container>
-      <p>Hábitos</p>
-      <ContainerProgressBar>
+      <ContainerLink>
+        <Link to="/habitos">Hábitos</Link>
+      </ContainerLink>
+      <ContainerProgressBar onClick={() => navigate("/hoje")}>
         <TrackItCircularProgressbar value={10} />
       </ContainerProgressBar>
       <ContainerLink>
