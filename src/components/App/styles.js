@@ -1,6 +1,6 @@
 import styled, { createGlobalStyle } from "styled-components";
 
-const ResetCSS = createGlobalStyle`
+export const Global = createGlobalStyle`
     html, body, div, span, applet, object, iframe,
     h1, h2, h3, h4, h5, h6, p, blockquote, pre,
     a, abbr, acronym, address, big, cite, code,
@@ -44,23 +44,19 @@ const ResetCSS = createGlobalStyle`
         border-collapse: collapse;
         border-spacing: 0;
     }
-`;
 
-export const GlobalStyle = styled(ResetCSS)`
-  * {
-    box-sizing: border-box;
+    * {
+    box-sizing: border-box !important;
   }
   body {
     font-family: "Lexend Deca", sans-serif;
-    font-size: 10px;
   }
 `;
 
 export const GlobalContainer = styled.div`
   width: 100vw;
   height: 100vh;
-  background-color: #126ba5;
-  filter: grayscale(20%);
+  background-color: #cecece;
   overflow: hidden;
   display: flex;
   align-items: center;

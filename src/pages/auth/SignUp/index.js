@@ -1,18 +1,21 @@
 import axios from "axios";
-import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 import { Button } from "../../../components/form/Button";
 import { Form } from "../../../components/form/Form";
 import { Input } from "../../../components/form/Input";
 import TrackItLink from "../../../components/Link";
-import { AuthContext } from "../../../context/AuthContext";
 import Layout from "../components/Layout";
 
-export default function SignIn() {
-  const [user, setUser] = useState({ email: "", password: "" });
+export default function SignUp() {
+  const [user, setUser] = useState({
+    email: "",
+    password: "",
+    name: "",
+    image: "",
+  });
   const [disableForm, setDisableForm] = useState(false);
   const navigate = useNavigate();
-  const context = useContext(AuthContext);
 
   function updateDisabledForm() {
     setDisableForm((prev) => !prev);
@@ -20,23 +23,15 @@ export default function SignIn() {
 
   function handleForm(e) {
     e.preventDefault();
+    console.log(user);
     updateDisabledForm();
     const promise = axios.post(
-      "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/auth/login",
+      "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/auth/sign-up",
       user
     );
 
-    promise.then((res) => {
-      const { token, name, email, image } = res.data;
-      const user = {
-        token,
-        name,
-        email,
-        image,
-      };
-      context.setUser(user);
-      localStorage.setItem("user", JSON.stringify(user));
-      navigate("/habitos");
+    promise.then((e) => {
+      navigate("/");
     });
 
     promise.catch((err) => {
@@ -62,9 +57,23 @@ export default function SignIn() {
           onChange={(e) => setUser({ ...user, password: e.target.value })}
           disabled={disableForm}
         />
-        <Button>Entrar</Button>
+        <Input
+          placeholder="nome"
+          type="text"
+          value={user.name}
+          onChange={(e) => setUser({ ...user, name: e.target.value })}
+          disabled={disableForm}
+        />
+        <Input
+          placeholder="foto"
+          type="text"
+          value={user.foto}
+          onChange={(e) => setUser({ ...user, image: e.target.value })}
+          disabled={disableForm}
+        />
+        <Button>{disableForm ? "loading" : "Cadastrar"}</Button>
       </Form>
-      <TrackItLink to="/cadastro" text="Não tem uma conta? Cadastre-se!" />
+      <TrackItLink to="/" text="Já tem uma conta? Faça login!" />
     </Layout>
   );
 }
