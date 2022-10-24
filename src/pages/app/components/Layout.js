@@ -34,7 +34,7 @@ export default function Layout({ children }) {
   return (
     <Container>
       <Navbar image={image} />
-      <Content>{children}ss</Content>
+      <Content>{children}</Content>
       <Footer />
     </Container>
   );

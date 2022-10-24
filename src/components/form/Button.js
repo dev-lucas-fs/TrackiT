@@ -16,4 +16,6 @@ export const Button = styled.button`
 
 export const InlineButton = styled(Button)`
   display: inline-flex;
+  width: auto;
+  padding: 6px 12px;
 `;
