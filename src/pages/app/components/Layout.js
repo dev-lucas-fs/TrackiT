@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { Children, useContext, useEffect } from "react";
+import React, { Children, useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { AuthContext } from "../../../context/AuthContext";
 import HabitsProvider, { HabitsContext } from "../../../context/HabitsContext";
@@ -31,6 +31,7 @@ const Content = styled.div`
 export default function Layout({ children }) {
   const habitsContext = useContext(HabitsContext);
   const context = useContext(AuthContext);
+  const [progress, setProgress] = useState(0);
   const { image } = context.user;
   useEffect(() => {
     const promise = axios.get(
@@ -47,19 +48,21 @@ export default function Layout({ children }) {
     });
   }, []);
 
+  useEffect(() => {
+    setProgress(
+      (habitsContext.habits.reduce((prev, curr) => {
+        return prev + (curr.done ? 1 : 0);
+      }, 0) /
+        habitsContext.habits.length) *
+        100
+    );
+  }, [habitsContext.habits]);
+
   return (
     <Container>
       <Navbar image={image} />
       <Content>{children}</Content>
-      <Footer
-        progress={
-          (habitsContext.habits.reduce((prev, curr) => {
-            return prev + (curr.done ? 1 : 0);
-          }, 0) /
-            habitsContext.habits.length) *
-          100
-        }
-      />
+      <Footer progress={progress} />
     </Container>
   );
 }

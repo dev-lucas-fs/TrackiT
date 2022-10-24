@@ -6,6 +6,7 @@ import HabitsList from "./components/HabitsList";
 
 export default function Habits() {
   const context = useContext(AuthContext);
+  // Repitir isso nas outras paginas
   const navigate = useNavigate();
   const [ok, setOk] = useState(false);
   useEffect(() => {

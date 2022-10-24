@@ -39,7 +39,7 @@ export default function HabitsList() {
   const [showNewHabit, setShowNewHabit] = useState(false);
   const [habits, setHabits] = useState([]);
   const context = useContext(AuthContext);
-
+  const [habit, setHabit] = useState({ name: "", days: [] });
   function updateHabits() {
     const promise = axios.get(
       "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits",
@@ -61,10 +61,19 @@ export default function HabitsList() {
     <Container>
       <Header>
         <Tittle>Meus hábitos</Tittle>
-        <InlineButton onClick={() => setShowNewHabit(true)}>+</InlineButton>
+        <InlineButton
+          data-identifier="create-habit-btn"
+          onClick={() => setShowNewHabit(true)}
+        >
+          +
+        </InlineButton>
       </Header>
       {showNewHabit ? (
-        <NewHabit hide={() => setShowNewHabit(!showNewHabit)} />
+        <NewHabit
+          habit={habit}
+          setHabit={setHabit}
+          hide={() => setShowNewHabit(false)}
+        />
       ) : (
         ""
       )}
@@ -80,7 +89,7 @@ export default function HabitsList() {
             />
           ))
         ) : (
-          <NonHabitsText>
+          <NonHabitsText data-identifier="no-habit-message">
             Você não tem nenhum hábito cadastrado ainda. Adicione um hábito para
             começar a trackear!
           </NonHabitsText>

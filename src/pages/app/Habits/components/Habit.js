@@ -95,7 +95,7 @@ export default function Habit({ name, days, id, updateHabits }) {
 
   return (
     <Container>
-      <Tittle>{name}</Tittle>
+      <Tittle data-identifier="habit-name">{name}</Tittle>
       <Days>
         {"DSTQQSS".split("").map((d, i) => (
           <Day key={i + 1} disabled={true} selected={days.includes(i)}>
@@ -103,7 +103,11 @@ export default function Habit({ name, days, id, updateHabits }) {
           </Day>
         ))}
       </Days>
-      <DelButton disabled={disabled} onClick={() => delHabit()}>
+      <DelButton
+        data-identifier="delete-habit-btn"
+        disabled={disabled}
+        onClick={() => delHabit()}
+      >
         <img src={delImg} />
       </DelButton>
     </Container>

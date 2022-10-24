@@ -22,7 +22,7 @@ export default function Navbar({ image }) {
   return (
     <Container>
       <img src={logo} />
-      <ProfileImage src={image} />
+      <ProfileImage data-identifier="avatar" src={image} />
     </Container>
   );
 }

@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import axios from "axios";
 import { AuthContext } from "../../../context/AuthContext";
 import { HabitsContext } from "../../../context/HabitsContext";
+import { useNavigate } from "react-router-dom";
 
 const Header = styled.header`
   display: flex;
@@ -21,7 +22,7 @@ const Tittle = styled.h1`
 `;
 
 const Legend = styled.span`
-  color: #bababa;
+  color: ${(props) => (props.done ? "#8FC549" : "#bababa")};
   font-size: 17.976px;
   font-weight: 400;
 `;
@@ -82,17 +83,41 @@ const weekInPtbr = [
 const DayText = styled.span`
   font-weight: 400;
   font-size: 12.976px;
-  color: ${(props) => (props.marked ? "#8FC549" : "#666666")};
+  color: ${(props) => (props.done ? "#8FC549" : "#666666")};
 `;
 
 export default function Today() {
+  const [progress, setProgress] = useState(0);
   const habitsContext = useContext(HabitsContext);
-  const [markedHabits, setMarkedHabits] = useState(
-    habitsContext.habits.map((_) => false)
-  );
+  const [markedHabits, setMarkedHabits] = useState([]);
   const context = useContext(AuthContext);
+  const navigate = useNavigate();
+  const [ok, setOk] = useState(false);
 
-  function updateHabits(i) {
+  useEffect(() => {
+    console.log(markedHabits);
+  }, [markedHabits]);
+
+  useEffect(() => {
+    setProgress(
+      (habitsContext.habits.reduce((prev, curr) => {
+        return prev + (curr.done ? 1 : 0);
+      }, 0) /
+        habitsContext.habits.length) *
+        100
+    );
+  }, [habitsContext.habits]);
+
+  useEffect(() => {
+    setMarkedHabits(habitsContext.habits.map((_) => false));
+    if (JSON.stringify(context.user) === "{}") isSignin();
+    else setOk(true);
+  }, []);
+
+  function isSignin() {
+    navigate("/");
+  }
+  function updateHabits(i = false) {
     const promise = axios.get(
       "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/today",
       {
@@ -104,9 +129,6 @@ export default function Today() {
 
     promise.then((res) => {
       habitsContext.setHabits(res.data);
-      setMarkedHabits(
-        res.data.map((m, k) => (i === k ? !markedHabits[i] : markedHabits[i]))
-      );
     });
   }
 
@@ -114,7 +136,7 @@ export default function Today() {
     updateHabits();
   }, []);
 
-  function handleDone(id) {
+  function handleDone(id, i) {
     const habit = habitsContext.habits.filter((habit) => habit.id === id)[0];
     const url = habit.done
       ? `https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/${id}/uncheck`
@@ -131,6 +153,10 @@ export default function Today() {
 
     promise.then((res) => {
       updateHabits();
+      if (!habitsContext.habits[i].done) {
+        markedHabits[i] = !markedHabits[i];
+        setMarkedHabits([...markedHabits]);
+      }
     });
 
     promise.catch((err) => {
@@ -139,32 +165,60 @@ export default function Today() {
   }
 
   return (
-    <Layout>
-      <Header>
-        <Tittle>{`${weekInPtbr[dayjs().day()]}, ${dayjs().format(
-          "DD/MM"
-        )}`}</Tittle>
-        <Legend>Nenhum hábito concluído ainda</Legend>
-      </Header>
+    <>
+      {ok ? (
+        <Layout>
+          <Header>
+            <Tittle>{`${weekInPtbr[dayjs().day()]}, ${dayjs().format(
+              "DD/MM"
+            )}`}</Tittle>
+            <Legend done={!(progress === 0)}>
+              {progress === 0
+                ? "Nenhum hábito concluído ainda"
+                : `${progress.toFixed(0)}% dos hábitos concluídos`}
+            </Legend>
+          </Header>
 
-      <Habits>
-        {habitsContext.habits.map(
-          ({ name, currentSequence, highestSequence, done, id }) => (
-            <Habit>
-              <HabitTittle>{name}</HabitTittle>
+          <Habits>
+            {habitsContext.habits.map(
+              ({ name, currentSequence, highestSequence, done, id }, i) => (
+                <Habit data-identifier="today-infos">
+                  <HabitTittle>{name}</HabitTittle>
 
-              <HabitText>
-                Sequência atual: <DayText>{currentSequence}</DayText> dias
-                <br />
-                Seu recorde: <DayText>{highestSequence}</DayText> dias
-              </HabitText>
-              <ConfirmButton onClick={() => handleDone(id)} done={done}>
-                <img src={confirm} />
-              </ConfirmButton>
-            </Habit>
-          )
-        )}
-      </Habits>
-    </Layout>
+                  <HabitText>
+                    Sequência atual:
+                    <DayText done={done && markedHabits[i]}>
+                      {currentSequence} dias
+                    </DayText>
+                    <br />
+                    Seu recorde:{" "}
+                    <DayText
+                      done={
+                        done &&
+                        markedHabits[i] &&
+                        highestSequence === currentSequence
+                      }
+                    >
+                      {highestSequence} dias
+                    </DayText>
+                  </HabitText>
+                  <ConfirmButton
+                    data-identifier="done-habit-btn"
+                    onClick={() => {
+                      handleDone(id, i);
+                    }}
+                    done={done}
+                  >
+                    <img src={confirm} />
+                  </ConfirmButton>
+                </Habit>
+              )
+            )}
+          </Habits>
+        </Layout>
+      ) : (
+        ""
+      )}
+    </>
   );
 }

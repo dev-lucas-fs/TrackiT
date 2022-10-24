@@ -69,11 +69,10 @@ const CancelButton = styled(InlineButton)`
   font-size: 16px;
 `;
 
-export default function NewHabit({ hide }) {
-  const [habit, setHabit] = useState({ name: "", days: [] });
+export default function NewHabit({ habit, setHabit, hide }) {
   const [disabled, setDisabled] = useState(false);
   const [selected, setSelected] = useState(
-    Array.from({ length: 7 }, (_) => false)
+    Array.from({ length: 7 }, (_, i) => habit.days.includes(i))
   );
   const context = useContext(AuthContext);
 
@@ -102,7 +101,8 @@ export default function NewHabit({ hide }) {
       alert("Sucesso");
       setHabit({ name: "", days: [] });
       setSelected(Array.from({ length: 7 }, (_) => false));
-      updateDisabled();
+      setDisabled(false);
+      hide();
     });
 
     promise.catch((err) => {
@@ -115,6 +115,7 @@ export default function NewHabit({ hide }) {
     <Container>
       <Form onSubmit={handleSubmit}>
         <Input
+          data-identifier="input-habit-name"
           placeholder="nome do hábito"
           value={habit.name}
           onChange={(e) => setHabit({ ...habit, name: e.target.value })}
@@ -124,6 +125,7 @@ export default function NewHabit({ hide }) {
         <Days>
           {"DSTQQSS".split("").map((day, i) => (
             <Day
+              data-identifier="week-day-btn"
               disabled={disabled}
               selected={selected[i]}
               updateSelected={() => {
@@ -149,13 +151,18 @@ export default function NewHabit({ hide }) {
         </Days>
         <ContainerConfirm>
           <CancelButton
+            data-identifier="cancel-habit-create-btn"
             disabled={disabled}
             type="button"
             onClick={() => hide()}
           >
             Cancelar
           </CancelButton>
-          <SaveButton disabled={disabled} type="submit">
+          <SaveButton
+            data-identifier="save-habit-create-btn"
+            disabled={disabled}
+            type="submit"
+          >
             Salvar
           </SaveButton>
         </ContainerConfirm>

@@ -28,17 +28,21 @@ const ContainerLink = styled.div`
 
 export default function Footer({ progress }) {
   const navigate = useNavigate();
-  console.log(progress);
+
   return (
     <Container>
       <ContainerLink>
-        <Link to="/habitos">Hábitos</Link>
+        <Link data-identifier="habit-page-action" to="/habitos">
+          Hábitos
+        </Link>
       </ContainerLink>
       <ContainerProgressBar onClick={() => navigate("/hoje")}>
         <TrackItCircularProgressbar value={progress} />
       </ContainerProgressBar>
       <ContainerLink>
-        <Link to="/historico">Historico</Link>
+        <Link data-identifier="historic-page-action" to="/historico">
+          Historico
+        </Link>
       </ContainerLink>
     </Container>
   );

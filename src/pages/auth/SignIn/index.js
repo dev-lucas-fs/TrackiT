@@ -1,3 +1,4 @@
+import { ThreeDots } from "react-loader-spinner";
 import axios from "axios";
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -13,13 +14,18 @@ export default function SignIn() {
   const [disableForm, setDisableForm] = useState(false);
   const navigate = useNavigate();
   const context = useContext(AuthContext);
-
+  const [loading, setLoading] = useState(false);
   function updateDisabledForm() {
     setDisableForm((prev) => !prev);
   }
 
+  function updateLoading() {
+    setLoading((prev) => !prev);
+  }
+
   function handleForm(e) {
     e.preventDefault();
+    updateLoading();
     updateDisabledForm();
     const promise = axios.post(
       "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/auth/login",
@@ -36,11 +42,12 @@ export default function SignIn() {
       };
       context.setUser(user);
       localStorage.setItem("user", JSON.stringify(user));
-      navigate("/habitos");
+      navigate("/hoje");
     });
 
     promise.catch((err) => {
       updateDisabledForm();
+      updateLoading();
       alert("Aconteceu algum problema!\nVerifique os campos!");
     });
   }
@@ -49,6 +56,7 @@ export default function SignIn() {
     <Layout>
       <Form onSubmit={handleForm}>
         <Input
+          data-identifier="input-email"
           placeholder="email"
           type="email"
           value={user.email}
@@ -56,15 +64,26 @@ export default function SignIn() {
           disabled={disableForm}
         />
         <Input
+          data-identifier="input-password"
           placeholder="senha"
           type="password"
           value={user.password}
           onChange={(e) => setUser({ ...user, password: e.target.value })}
           disabled={disableForm}
         />
-        <Button>Entrar</Button>
+        <Button data-identifier="login-btn">
+          {loading ? (
+            <ThreeDots color="#FFFFFF" height={25} width={25} />
+          ) : (
+            "Entrar"
+          )}
+        </Button>
       </Form>
-      <TrackItLink to="/cadastro" text="Não tem uma conta? Cadastre-se!" />
+      <TrackItLink
+        data-identifier="sign-up-action"
+        to="/cadastro"
+        text="Não tem uma conta? Cadastre-se!"
+      />
     </Layout>
   );
 }
