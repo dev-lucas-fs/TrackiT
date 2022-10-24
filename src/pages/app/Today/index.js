@@ -5,6 +5,7 @@ import confirm from "../../../assets/confirm.png";
 import dayjs from "dayjs";
 import axios from "axios";
 import { AuthContext } from "../../../context/AuthContext";
+import { HabitsContext } from "../../../context/HabitsContext";
 
 const Header = styled.header`
   display: flex;
@@ -63,7 +64,7 @@ const ConfirmButton = styled.button`
   width: 70px;
   height: 70px;
   border-radius: 5px;
-  background-color: ${(props) => (!props.confirm ? "#ebebeb" : "8FC549")};
+  background-color: ${(props) => (!props.done ? "#ebebeb" : "#8FC549")};
   border: none;
   outline: none;
 `;
@@ -78,12 +79,20 @@ const weekInPtbr = [
   "Sábado",
 ];
 
-export default function Today() {
-  const [habits, setHabits] = useState([]);
+const DayText = styled.span`
+  font-weight: 400;
+  font-size: 12.976px;
+  color: ${(props) => (props.marked ? "#8FC549" : "#666666")};
+`;
 
+export default function Today() {
+  const habitsContext = useContext(HabitsContext);
+  const [markedHabits, setMarkedHabits] = useState(
+    habitsContext.habits.map((_) => false)
+  );
   const context = useContext(AuthContext);
 
-  useEffect(() => {
+  function updateHabits(i) {
     const promise = axios.get(
       "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/today",
       {
@@ -92,7 +101,42 @@ export default function Today() {
         },
       }
     );
+
+    promise.then((res) => {
+      habitsContext.setHabits(res.data);
+      setMarkedHabits(
+        res.data.map((m, k) => (i === k ? !markedHabits[i] : markedHabits[i]))
+      );
+    });
+  }
+
+  useEffect(() => {
+    updateHabits();
   }, []);
+
+  function handleDone(id) {
+    const habit = habitsContext.habits.filter((habit) => habit.id === id)[0];
+    const url = habit.done
+      ? `https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/${id}/uncheck`
+      : `https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/${id}/check`;
+    const promise = axios.post(
+      url,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${context.user.token}`,
+        },
+      }
+    );
+
+    promise.then((res) => {
+      updateHabits();
+    });
+
+    promise.catch((err) => {
+      console.log(err);
+    });
+  }
 
   return (
     <Layout>
@@ -104,17 +148,22 @@ export default function Today() {
       </Header>
 
       <Habits>
-        <Habit>
-          <HabitTittle>Ler 1 capítulo de livro</HabitTittle>
-          <HabitText>
-            Sequência atual: 3 dias
-            <br />
-            Seu recorde: 5 dias
-          </HabitText>
-          <ConfirmButton>
-            <img src={confirm} />
-          </ConfirmButton>
-        </Habit>
+        {habitsContext.habits.map(
+          ({ name, currentSequence, highestSequence, done, id }) => (
+            <Habit>
+              <HabitTittle>{name}</HabitTittle>
+
+              <HabitText>
+                Sequência atual: <DayText>{currentSequence}</DayText> dias
+                <br />
+                Seu recorde: <DayText>{highestSequence}</DayText> dias
+              </HabitText>
+              <ConfirmButton onClick={() => handleDone(id)} done={done}>
+                <img src={confirm} />
+              </ConfirmButton>
+            </Habit>
+          )
+        )}
       </Habits>
     </Layout>
   );

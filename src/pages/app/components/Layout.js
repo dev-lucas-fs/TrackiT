@@ -1,6 +1,8 @@
-import React, { Children, useContext } from "react";
+import axios from "axios";
+import React, { Children, useContext, useEffect } from "react";
 import styled from "styled-components";
 import { AuthContext } from "../../../context/AuthContext";
+import HabitsProvider, { HabitsContext } from "../../../context/HabitsContext";
 import Footer from "./Footer";
 import Navbar from "./Navbar";
 
@@ -27,15 +29,37 @@ const Content = styled.div`
 `;
 
 export default function Layout({ children }) {
+  const habitsContext = useContext(HabitsContext);
   const context = useContext(AuthContext);
-
   const { image } = context.user;
+  useEffect(() => {
+    const promise = axios.get(
+      "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/today",
+      {
+        headers: {
+          Authorization: `Bearer ${context.user.token}`,
+        },
+      }
+    );
+
+    promise.then((res) => {
+      habitsContext.setHabits(res.data);
+    });
+  }, []);
 
   return (
     <Container>
       <Navbar image={image} />
       <Content>{children}</Content>
-      <Footer />
+      <Footer
+        progress={
+          (habitsContext.habits.reduce((prev, curr) => {
+            return prev + (curr.done ? 1 : 0);
+          }, 0) /
+            habitsContext.habits.length) *
+          100
+        }
+      />
     </Container>
   );
 }
