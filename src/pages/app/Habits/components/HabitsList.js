@@ -70,6 +70,7 @@ export default function HabitsList() {
       </Header>
       {showNewHabit ? (
         <NewHabit
+          updateHabits={updateHabits()}
           habit={habit}
           setHabit={setHabit}
           hide={() => setShowNewHabit(false)}

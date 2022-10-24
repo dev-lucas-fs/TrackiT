@@ -69,7 +69,7 @@ const CancelButton = styled(InlineButton)`
   font-size: 16px;
 `;
 
-export default function NewHabit({ habit, setHabit, hide }) {
+export default function NewHabit({ habit, setHabit, hide, updateHabits }) {
   const [disabled, setDisabled] = useState(false);
   const [selected, setSelected] = useState(
     Array.from({ length: 7 }, (_, i) => habit.days.includes(i))
@@ -103,6 +103,7 @@ export default function NewHabit({ habit, setHabit, hide }) {
       setSelected(Array.from({ length: 7 }, (_) => false));
       setDisabled(false);
       hide();
+      updateHabits();
     });
 
     promise.catch((err) => {
